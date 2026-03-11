@@ -7,7 +7,7 @@
     <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc.">
     <meta name="author" content="Coderthemes">
 
-    <link rel="shortcut icon" href="<?= base_url() ?>assets/images/favicon_1.ico">
+    <link rel="shortcut icon" href="<?= base_url() ?>assets/images/logoSococim.jpeg">
 
     <title>SOCOCIM GESTION DE STOCK</title>
 

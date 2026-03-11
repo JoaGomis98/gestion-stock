@@ -62,13 +62,7 @@
                             <li><a href="<?= base_url() ?>format_donnee"
                                     class="<?= (current_url() == base_url('format_donnee')) ? 'active' : '' ?>">Format-donnee</a>
                             </li>
-                            <li><a href="<?= base_url() ?>base_url"
-                                    class="<?= (current_url() == base_url('base_url')) ? 'active' : '' ?>">Base URL</a></li>
-                            <li><a href="<?= base_url() ?>menu"
-                                    class="<?= (current_url() == base_url('menu')) ? 'active' : '' ?>">Menu</a></li>
-                            <li><a href="<?= base_url() ?>sous_menu"
-                                    class="<?= (current_url() == base_url('sous_menu')) ? 'active' : '' ?>">Sous Menu</a>
-                            </li>
+                          
                         </ul>
                     </li>
                 <?php endif; ?>

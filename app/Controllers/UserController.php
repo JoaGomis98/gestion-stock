@@ -2,138 +2,114 @@
 
 namespace App\Controllers;
 
-use App\Models\ProfilModel;
 use App\Models\UserModel;
-use App\Models\RoleModel;
 
 class UserController extends BaseController
 {
+
+    // afficher formulaire login
     public function loginform()
     {
         return view('login');
     }
 
+    // afficher la liste des utilisateurs
     public function AfficherUser()
     {
-       
         $userModel = new UserModel();
-      
-        $donnee['users'] = $userModel->afficherUsers();
-        return view('gestionUtilisateur', $donnee);
+
+        $data['users'] = $userModel->afficherUsers();
+
+        return view('gestionUtilisateur', $data);
     }
 
+    // afficher formulaire ajout utilisateur
+    public function create()
+    {
+        return view('createUser');
+    }
+
+    // ajouter utilisateur
     public function AjoutUser()
     {
+        $userModel = new UserModel();
 
-        $nom = $this->request->getPost('nom');
-        $prenom = $this->request->getPost('prenom');
-        $email = $this->request->getPost('email');
-        $username = $this->request->getPost('username');
-        $mdp = password_hash($this->request->getPost('mdp'), PASSWORD_DEFAULT);
-        $profile = $this->request->getPost('profile');
-        $userMod = new UserModel();
-        $donnee = [
-            'nom' => $nom,
-            'prenom' => $prenom,
-            'email' => $email,
-            'username' => $username,
-            'motdepasse' => $mdp,
-            'profile_id' => $profile
+        $data = [
+            'nom' => $this->request->getPost('nom'),
+            'email' => $this->request->getPost('email'),
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'role' => $this->request->getPost('role')
         ];
-        $userMod->insert($donnee);
+
+        $userModel->insert($data);
+
         return redirect()->to(site_url('gestionUtilisateur'));
     }
 
+    // modifier utilisateur
     public function EditUser()
     {
         $id = $this->request->getPost('id');
-        $nom = $this->request->getPost('nom');
-        $prenom = $this->request->getPost('prenom');
-        $email = $this->request->getPost('email');
-        $username = $this->request->getPost('username');
-        $mdp = password_hash($this->request->getPost('mdp'), PASSWORD_DEFAULT);
-        $profile = $this->request->getPost('profile');
+
         if ($id) {
-            $userMod = new UserModel();
-            $data = $userMod->find($id);
-            if ($data) {
-                $donnee = [
-                    'nom' => $nom,
-                    'prenom' => $prenom,
-                    'email' => $email,
-                    'username' => $username,
-                    'motdepasse' => $mdp,
-                    'profile_id' => $profile
-                ];
-                $userMod->update($id, $donnee);
-            }
+
+            $userModel = new UserModel();
+
+            $data = [
+                'nom' => $this->request->getPost('nom'),
+                'email' => $this->request->getPost('email'),
+                'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+                'role' => $this->request->getPost('role')
+            ];
+
+            $userModel->update($id, $data);
         }
+
         return redirect()->to(site_url('gestionUtilisateur'));
     }
 
+    // supprimer utilisateur
     public function DeleteUser($id = null)
     {
         if ($id != null) {
-            $userMod = new UserModel();
-            $userMod->delete($id);
+
+            $userModel = new UserModel();
+
+            $userModel->delete($id);
         }
+
         return redirect()->to(site_url('gestionUtilisateur'));
     }
 
-    public function ChangeStatut($id = null)
-    {
-        if ($id != null) {
-            $userMod = new UserModel();
-            $user = $userMod->find($id);
-            if ($user) {
-                $newStatut = ($user['statut'] == 1) ? 0 : 1;
-                $userMod->update($id, ['statut' => $newStatut]);
-            }
-        }
-        return redirect()->to(site_url('gestionUtilisateur'));
-    }
-
+    // login utilisateur
     public function login()
     {
-        $userMod = new UserModel();
-        $roleMod = new RoleModel();
-        $username = $this->request->getPost('username');
-        $mdp = $this->request->getPost('mdp');
-        $user = $userMod->getUserByUsername($username, $mdp);
+        $userModel = new UserModel();
 
-        if ($user) {
-            if ($user['statut'] == 1) {
-                $role = $roleMod->getRole($user['profile_id']);
-                session()->set([
-                    'prenom' => $user['prenom'],
-                    'profile_id' => $user['profile_id'],
-                    'role' => $role,
-                    'profil' => $user['profils'],
-                    'isLogged' => true
-                ]);
+        $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
 
-                $tab_smenu = array();
-                foreach ($role as $r) {
-                    $tab_smenu[$r['id_sousmenu']] = [
-                        'add' => $r['d_add'],
-                        'read' => $r['d_read'],
-                        'del' => $r['d_del'],
-                        'upd' => $r['d_upd']
-                    ];
-                }
-                session()->set('tab_smenu', $tab_smenu);
+        $user = $userModel->where('email', $email)->first();
 
-                // var_dump($user);
-                // exit;
-                return redirect()->to(site_url('index'));
-            } else {
-                return redirect()->back()->with('errorMessage', 'Cet utilisateur est bloqué, contactez votre administrateur');
-            }
+        if ($user && password_verify($password, $user['password'])) {
+
+            session()->set([
+                'id' => $user['id'],
+                'nom' => $user['nom'],
+                'email' => $user['email'],
+                'role' => $user['role'],
+                'isLogged' => true
+            ]);
+
+            return redirect()->to(site_url('index'));
+
         } else {
-            return redirect()->back()->with('errorMessage', 'Username ou Mot de passe incorrect');
+
+            return redirect()->back()->with('errorMessage', 'Email ou mot de passe incorrect');
         }
     }
 
+    // logout
     public function logout()
     {
         session()->destroy();
@@ -141,51 +117,4 @@ class UserController extends BaseController
         return redirect()->to(site_url('login'));
     }
 
-    public function SendEmail($id = null)
-    {
-        if ($id != null) {
-            $userMod = new UserModel();
-            $user = $userMod->find($id);
-
-            if ($user) {
-                $to = $user['email'];
-                $subject = "Vos informations de connexion";
-                $message = "
-                Bonjour {$user['prenom']} {$user['nom']},<br><br>
-                Voici vos informations de connexion à la plateforme :<br>
-                <b>Nom d'utilisateur :</b> {$user['username']}<br>
-                <b>Mot de passe :</b> {$user['motdepasse']}<br><br>
-                Merci de vous connecter sur la plateforme.<br>
-                <i>Ce message est automatique, ne pas répondre.</i>
-            ";
-
-                $emailConfig = [
-                    'protocol' => 'smtp',
-                    'SMTPHost' => 'pro.turbo-smtp.com',
-                    'SMTPUser' => 'diery.seye@education.sn',
-                    'SMTPPass' => 'Pexice@10#',
-                    'SMTPPort' => 465,
-                    'SMTPCrypto' => 'ssl',
-                    'mailType' => 'html',
-                    'charset' => 'utf-8',
-                    'newline' => "\r\n",
-                    'wordWrap' => true,
-                ];
-
-                $email = \Config\Services::email($emailConfig);
-                $email->setFrom('no-reply@education.sn', 'Mamzo - Ne pas répondre');
-                $email->setTo($to);
-                $email->setSubject($subject);
-                $email->setMessage($message);
-
-                if ($email->send()) {
-                    return redirect()->back()->with('successMessage', 'Email envoyé à l\'utilisateur.');
-                } else {
-                    $data = $email->printDebugger(['headers']);
-                    dd($data);
-                }
-            }
-        }
-        return redirect()->back()->with('errorMessage', 'ID utilisateur invalide.');
-    }
 }

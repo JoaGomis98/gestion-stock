@@ -31,6 +31,7 @@
     <!-- Custom Files -->
     <link href="<?= base_url() ?>assets/css/helper.css" rel="stylesheet" type="text/css" />
     <link href="<?= base_url() ?>assets/css/style.css" rel="stylesheet" type="text/css" />
+    <link href="<?= base_url() ?>assets/css/sococim-style.css" rel="stylesheet" type="text/css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

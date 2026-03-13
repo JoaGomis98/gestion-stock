@@ -18,11 +18,15 @@ class UserModel extends Model
     // Active soft delete
     protected $useSoftDeletes = true;
 
-
-
-    
+    //fonction pour afficher la liste de tous les utlisateurs
     public function afficherUsers()
     {
         return $this->findAll();
+    }
+
+    //Filtrer un utilisateur par son email
+    public function getUserByEmail($email)
+    {
+        return $this->where('email', $email)->first();
     }
 }

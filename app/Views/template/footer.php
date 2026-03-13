@@ -1,5 +1,5 @@
 <footer class="footer text-right">
-    2026 © SOCOCIM.
+    2026 © StockMaster - Sococim Industrie.
 </footer>
 
 
